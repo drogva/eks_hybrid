@@ -1,0 +1,9 @@
+apiVersion: cilium.io/v2alpha1
+kind: CiliumBGPAdvertisement
+metadata:
+  name: bgp-advertisement-pods
+  labels:
+    advertise: "bgp" # PeerConfig가 이 메타데이터 라벨을 보고 매핑합니다.
+spec:
+  advertisements:
+    - advertisementType: "PodCIDR"
