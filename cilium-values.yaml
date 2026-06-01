@@ -1,0 +1,57 @@
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: eks.amazonaws.com/compute-type
+          operator: In
+          values:
+          - hybrid
+      # EC2 관리형 노드 그룹의 실제 레이블 추가
+      - matchExpressions:
+        - key: eks.amazonaws.com/nodegroup
+          operator: In
+          values:
+          - auto
+
+# 2. IPAM 및 Pod 대역 설정 (BGP 전파용)
+ipam:
+  mode: cluster-pool
+  operator:
+    clusterPoolIPv4MaskSize: 25
+    clusterPoolIPv4PodCIDRList:
+    - 10.42.0.0/16
+
+# 3. BGP 및 성능 최적화
+bgpControlPlane:
+  enabled: true
+bpf:
+  masquerade: false
+
+# 4. Cilium Operator 설정 (EC2에서도 돌 수 있게 확장)
+operator:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: eks.amazonaws.com/compute-type
+            operator: In
+            values:
+              - auto
+              - hybrid
+        - matchExpressions:
+          - key: eks.amazonaws.com/nodegroup
+            operator: In
+            values:
+              - system
+              - auto
+  unmanagedPodWatcher:
+    restart: false
+
+# 5. 기타 하이브리드 필수 옵션
+loadBalancer:
+  serviceTopology: true
+envoy:
+  enabled: false
+kubeProxyReplacement: "false"
